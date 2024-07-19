@@ -1,0 +1,32 @@
+{% extends 'ai_blog_app/templates/base.html' %}
+{% block content %}
+
+<!-- Main -->
+<div class="flex-grow container mt-5 w-50" style="transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform = 'scale(1.05)';" onmouseout="this.style.transform = 'scale(1)'; this.style.boxShadow = 'none';">
+    <div class="p-4 text-dark bg-white rounded-3 shadow">
+        <h2>Вход в аккаунт</h2>
+        <form method="post">
+          {% csrf_token %}
+
+          <input type="hidden" name="next" value="{{ next }}" />
+          <div class="form-error">{{ form.non_field_errors }}</div>
+          {% for field in form %}
+            <div class="form-outline mb-4">
+              <p><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</p>
+              <div class="form-error">{{ field.errors }}</div>
+            </div>
+          {% endfor %}
+            <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-block mb-4">Вход</button>
+          <div class="text-center">
+            <p>Еще не зарегистрирваны? <a href="{% url 'users:sign_up' %}">Регистрация</a></p>
+          </div>
+          <div class="text-center">
+              <!-- Simple link -->
+              <a href="{% url 'users:password_reset' %}">Забыли пароль?</a>
+            </div>
+    </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

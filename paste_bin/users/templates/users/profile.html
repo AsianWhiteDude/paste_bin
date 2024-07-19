@@ -1,0 +1,33 @@
+{% extends 'ai_blog_app/templates/base.html' %}
+{% block content %}
+
+<!-- Main -->
+<div class="flex-grow container mt-5 mb-4 w-50" style="transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform = 'scale(1.05)';" onmouseout="this.style.transform = 'scale(1)'; this.style.boxShadow = 'none';">
+    <div class="p-4 text-dark bg-white rounded-3 shadow">
+        <h2>Профиль</h2>
+        <form method="post">
+          {% csrf_token %}
+
+          <input type="hidden" name="next" value="{{ next }}" />
+          <div class="form-error">{{ form.non_field_errors }}</div>
+          {% for field in form %}
+            <div class="form-outline mb-4">
+              <p><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</p>
+              <div class="form-error">{{ field.errors }}</div>
+            </div>
+          {% endfor %}
+
+        </form>
+
+        <a href="{% url 'users:password_change' %}" class="text-black hover:underline"><p class="fw-normal">Сменить пароль</p></a>
+        <a href="{% url 'users:logout' %}" class="text-black hover:underline"><p class="fw-normal">Выйти</p></a>
+
+  </div>
+
+</div>
+<div class="flex-grow container mt-3 mb-2 w-50" style="transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform = 'scale(1.05)';" onmouseout="this.style.transform = 'scale(1)'; this.style.boxShadow = 'none';">
+    <div class="p-4 text-dark bg-white rounded-3 shadow">
+        <a class="text-decoration-none text-dark" href="{% url 'posts' %}"><h2>История статей</h2></a>
+    </div>
+</div>
+{% endblock %}

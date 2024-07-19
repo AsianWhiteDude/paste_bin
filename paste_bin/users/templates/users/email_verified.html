@@ -1,0 +1,13 @@
+{% extends 'ai_blog_app/templates/base.html' %}
+{% block content %}
+<div class="flex-grow container mt-5 w-50" style="transition: transform 0.3s, box-shadow 0.3s;"
+     onmouseover="this.style.transform = 'scale(1.1)';"
+     onmouseout="this.style.transform = 'scale(1)'; this.style.boxShadow = 'none';">
+    <div class="p-4 text-dark bg-white rounded-3 shadow">
+            <h1>E-mail подтвержден</h1>
+
+            <p>Ваш электронный адрес успешно подтвержден. Благодарим вас за регистрацию!
+                Теперь вы можете войти в аккаунт</p>
+    </div>
+</div>
+{% endblock %}

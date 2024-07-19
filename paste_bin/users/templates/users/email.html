@@ -1,0 +1,7 @@
+
+
+Подтвердите E-mail.
+Пожалуйста, нажмите на ссылку ниже, чтобы подтвердить ваш адрес электронной почты:
+{% block reset_link %}
+{{ protocol }}://{{ domain }}{% url 'users:verify_email' uidb64=uid token=token %}
+{% endblock %}

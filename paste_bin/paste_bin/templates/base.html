@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <link type="text/css" rel="stylesheet" href="{% static 'paste_bin/css/style.css' %}">
+  <link href="{% static 'paste_bin/css/bootstrap.min.css' %}"
+        rel="stylesheet" crossorigin="anonymous">
+</head>
+
+<body class="bg-light">
+
+  <header class="bg-primary">
+    <div class="container">
+      <div class="row">
+        <div class="col-9">
+            <h1><a class="fw-normal text-decoration-none text-white" href="{% url 'home' %}">{{ title }}</a></h1>
+        </div>
+        <div class="col-3 d-flex flex-row-reverse">
+            {% if user.is_authenticated %}
+                 <div class="p-2 bd-highlight">
+                     <a href="{% url 'users:profile' %}"
+                                                  class="font-monospace
+                                                   text-decoration-none text-white hover:underline">
+                         {{ user.username }}</a></div>
+            {% else %}
+            <div class="p-2 bd-highlight">
+                <p class="text-white hover:underline">
+                    <a href="{% url 'users:login' %}" class="text-white hover:underline">Войти</a> |
+                    <a href="{% url 'users:sign_up' %}" class="text-white hover:underline">Регистрация</a>
+                </p></div>
+            {% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <footer>
+  </footer>
+
+<script src="{% static 'paste_bin/js/bootstrap.bundle.min.js' %}"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+</html>
