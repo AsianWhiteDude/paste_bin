@@ -25,7 +25,7 @@ from .tokens import account_activation_token
 class LoginUser(LoginView):
     form_class = LoginUserForm
     template_name = 'users/login.html'
-    extra_context = {'title': 'Взял Да Вставил!'}
+    extra_context = {'title': 'Pastebin'}
 
     def get_success_url(self):
         return reverse_lazy('home')
@@ -34,7 +34,7 @@ class LoginUser(LoginView):
 class SignUpUser(CreateView):
     form_class = SignUpUserLogin
     template_name = 'users/sign_up.html'
-    extra_context = {'title': 'Взял Да Вставил!'}
+    extra_context = {'title': 'Pastebin'}
 
     def form_valid(self, form):
         user = form.save(commit=False)
@@ -67,14 +67,14 @@ class SignUpUser(CreateView):
 
 
 def check_email(request):
-    return render(request, 'users/check_email.html', context={'title': 'Blog Generator'})
+    return render(request, 'users/check_email.html', context={'title': 'Pastebin'})
 
 
 class ProfileUser(LoginRequiredMixin, UpdateView):
     model = get_user_model()
     form_class = ProfileUserForm
     template_name = 'users/profile.html'
-    extra_context = {'title': 'Взял Да Вставил!'}
+    extra_context = {'title': 'Pastebin'}
 
     def get_success_url(self):
         return reverse_lazy('users:profile', args=[self.request.user.pk])
@@ -102,7 +102,7 @@ def verify_email(request, uidb64, token):
         user.is_active = True
         user.save()
 
-        return render(request, 'users/email_verified.html', context={'title': 'Взял Да Вставил!'})
+        return render(request, 'users/email_verified.html', context={'title': 'Pastebin'})
 
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         return HttpResponseServerError('<h1>Invalid activation link</h1>')

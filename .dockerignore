@@ -1,5 +1,5 @@
 .venv
 /venv
-.env
+paste_bin/.env
 /idea
 .idea

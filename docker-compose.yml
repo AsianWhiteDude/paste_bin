@@ -1,0 +1,56 @@
+version: '3.9'
+
+services:
+  django:
+    build:
+      dockerfile: Dockerfile
+    container_name: django
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: paste_bin/.env
+    volumes:
+      - static_volume:/static
+    networks:
+      - pastebin
+    restart: on-failure
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/proxy_params:/etc/nginx/proxy_params
+      - static_volume:/static
+    ports:
+      - "80:80"
+    networks:
+      - pastebin
+    depends_on:
+      - django
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: pastebin
+      POSTGRES_PASSWORD: pastebin
+      POSTGRES_DB: pastebin
+    ports:
+      - "5432:5432"
+    networks:
+      - pastebin
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-U", "pastebin" ]
+      interval: 5s
+      retries: 5
+      start_period: 10s
+
+
+volumes:
+  static_volume:
+
+networks:
+  pastebin:
+    driver: bridge
