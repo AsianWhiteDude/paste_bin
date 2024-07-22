@@ -1,0 +1,31 @@
+
+
+{% extends 'paste_bin/templates/base.html' %}
+{% block content %}
+
+
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-9">
+            <div class="card">
+                <div class="card-body">
+                <h5 class="card-title">{{ post.title }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Добавлено пользователем: {{ post.user.username }}</h6>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Добавлено: {{ post.time_create }}</li>
+                    <li class="list-group-item">Ссылка истекает: {{ post.time_expires }}</li>
+                </ul>
+                <div class="card-body">
+                    <p class="card-text">{{ post.content }}</p>
+                </div>
+            </div>
+      </div>
+        <div class="col-3">
+            {% include 'post_bin/includes/all_posts.html' %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

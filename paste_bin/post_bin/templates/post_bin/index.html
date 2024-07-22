@@ -4,28 +4,35 @@
 
 
 <div class="container mt-5">
-    <h1>Добро пожаловать в Pastebin!</h1>
-    <form method="post">
-        {% csrf_token %}
-      <div class="form-group">
-          <input type="hidden" name="next" value="{{ next }}" />
-          <div class="form-error">{{ form.non_field_errors }}</div>
-          {% for field in form %}
-          {% if forloop.last %}
-          <button type="submit" class="btn btn-primary">Создать Пост</button>
-          <div class="form-outline mb-4">
-              <p><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</p>
-              <div class="form-error">{{ field.errors }}</div>
-            </div>
-          {% else %}
-          <div class="form-outline mb-4">
-              <p><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</p>
-              <div class="form-error">{{ field.errors }}</div>
-            </div>
-          {% endif %}
-          {% endfor %}
+    <div class="row">
+        <div class="col-9">
+        <h1>Добро пожаловать в Pastebin!</h1>
+        <form method="post">
+            {% csrf_token %}
+          <div class="form-group">
+              <input type="hidden" name="next" value="{{ next }}" />
+              <div class="form-error">{{ form.non_field_errors }}</div>
+              {% for field in form %}
+              {% if forloop.last %}
+              <button type="submit" class="btn btn-primary">Создать Пост</button>
+              <div class="form-outline mb-4">
+                  <p><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</p>
+                  <div class="form-error">{{ field.errors }}</div>
+                </div>
+              {% else %}
+              <div class="form-outline mb-4">
+                  <p><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</p>
+                  <div class="form-error">{{ field.errors }}</div>
+                </div>
+              {% endif %}
+              {% endfor %}
+          </div>
+        </form>
       </div>
-    </form>
-  </div>
+        <div class="col-3">
+            {% include 'post_bin/includes/all_posts.html' %}
+        </div>
+    </div>
+</div>
 
 {% endblock %}

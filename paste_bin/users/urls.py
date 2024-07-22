@@ -30,4 +30,6 @@ urlpatterns = [
     path('password-change/done/', PasswordChangeDoneView.as_view(template_name='users/password_change_done.html'),
          name='password_change_done'),
     path('profile/', views.ProfileUser.as_view(), name='profile'),
+    path('posts/<str:username>', views.all_posts , name='posts'),
+    path('post-details/<slug:hash>', views.post_details, name='post_details'),
 ]

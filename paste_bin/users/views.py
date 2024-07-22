@@ -1,5 +1,6 @@
 import os
 
+import boto3
 from django.contrib.auth import login, authenticate, logout, get_user_model
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -17,9 +18,18 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 from django.views.generic import CreateView, UpdateView
 
-
+from post_bin.models import Paste
 from .forms import LoginUserForm, SignUpUserLogin, ProfileUserForm, UserPasswordChangeForm
 from .tokens import account_activation_token
+
+
+session = boto3.session.Session()
+s3 = session.client(
+    service_name='s3',
+    endpoint_url='https://storage.yandexcloud.net',
+    aws_access_key_id=str(os.getenv('YANDEX_S3_ID_KEY')),
+    aws_secret_access_key=str(os.getenv('YANDEX_S3_SECRET_KEY')),
+)
 
 
 class LoginUser(LoginView):
@@ -106,3 +116,25 @@ def verify_email(request, uidb64, token):
 
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         return HttpResponseServerError('<h1>Invalid activation link</h1>')
+
+
+
+
+def all_posts(request, username):
+    user = User.objects.get(username=username)
+    posts = Paste.objects.filter(user=user)
+
+    return render(request, 'users/post_history.html',
+                  context={'title': 'Pastebin', 'posts': posts, 'username': username})
+
+def post_details(request, hash):
+    post = Paste.objects.get(hash_value=hash)
+    posts = Paste.objects.filter(user=request.user.id)
+
+    get_object_response = s3.get_object(Bucket='pastebin-app', Key=post.s3_link)
+
+    post.content = get_object_response['Body'].read().decode('utf-8')
+
+    return render(request, 'users/post_details.html',
+                  context={'title': 'Pastebin',
+                           'post': post, 'posts': posts, 'user': request.user})

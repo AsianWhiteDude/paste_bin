@@ -1,0 +1,22 @@
+{% extends 'paste_bin/templates/base.html' %}
+{% block content %}
+
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="list-group">
+            <h2>История Постов</h2>
+            <p>Пользователь: {{ username }}</p>
+              {% for post in posts %}
+                <a href="{% url 'users:post_details' post.hash_value %}" class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ post.title }}</h5>
+                          <small>{{ post.time_create|date:"SHORT_DATE_FORMAT" }} - {{ post.time_expires|date:"SHORT_DATE_FORMAT" }}</small>
+                        </div>
+                        <p class="mb-1">{{ post.content }}...</p>
+                    </a>
+              {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

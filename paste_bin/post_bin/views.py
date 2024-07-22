@@ -6,7 +6,9 @@ import logging
 from datetime import timedelta, datetime
 
 import boto3
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView, CreateView
 from post_bin.forms import PastePost
@@ -36,7 +38,15 @@ class Index(LoginRequiredMixin, CreateView):
     model = Paste
     form_class = PastePost
     template_name = 'post_bin/index.html'
-    extra_context = {'title': 'Pastebin'}
+
+    user = get_user_model()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['posts'] = Paste.objects.filter(user=self.request.user)[:10]
+        context['title'] = 'Pastebin'
+        context['user'] = self.request.user
+        return context
 
     def form_valid(self, form):
 
@@ -49,7 +59,7 @@ class Index(LoginRequiredMixin, CreateView):
 
         s3.put_object(Bucket='pastebin-app', Key=file_name, Body=paste.content)
 
-        paste.s3_link = s3.generate_presigned_url('get_object', Params={'Bucket': 'pastebin-app', 'Key': file_name})
+        paste.s3_link = file_name
 
         time_choice = form.cleaned_data['time_expire']
         expiration_delta = {
@@ -70,29 +80,4 @@ class Index(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('home')
 
-# def all_blogs(request):
-#     blog_articles = Paste.objects.filter(user=request.user)
-#
-#     for article in blog_articles:
-#
-#         get_object_response = s3.get_object(Bucket='blog-app-contents', Key=article.content_url)
-#
-#         article.content = get_object_response['Body'].read().decode('utf-8')
-#
-#
-#     return render(request, 'blog_generator/all_blogs.html',
-#                   context={'title': 'Blog Generator', 'blog_articles': blog_articles})
-#
-# def post_details(request, pk):
-#     blog_article = Paste.objects.get(id=pk)
-#
-#     get_object_response = s3.get_object(Bucket='blog-app-contents', Key=blog_article.content_url)
-#
-#     blog_article.content = get_object_response['Body'].read().decode('utf-8')
-#
-#     if request.user == blog_article.user:
-#         return render(request, 'blog_generator/blog_details.html',
-#                   context={'title': 'Blog Generator',
-#                            'blog_article': blog_article})
-#     else:
-#         return HttpResponseForbidden('<h1>403 Forbidden</h1>')
+
