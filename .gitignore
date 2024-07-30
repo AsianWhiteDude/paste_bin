@@ -3,3 +3,5 @@
 paste_bin/.env
 /idea
 .idea
+post_cleaner/.env
+.env
