@@ -1,6 +1,7 @@
 import os
 
 import boto3
+import redis
 from django.contrib.auth import login, authenticate, logout, get_user_model
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -15,9 +16,10 @@ from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.views.decorators.cache import cache_page
 
 from django.views.generic import CreateView, UpdateView
-
+from django.core.cache import cache
 from post_bin.models import Paste
 from .forms import LoginUserForm, SignUpUserLogin, ProfileUserForm, UserPasswordChangeForm
 from .tokens import account_activation_token
@@ -31,6 +33,7 @@ s3 = session.client(
     aws_secret_access_key=str(os.getenv('YANDEX_S3_SECRET_KEY')),
 )
 
+redis_client = redis.StrictRedis(host='redis', port=6379, decode_responses=True)
 
 class LoginUser(LoginView):
     form_class = LoginUserForm
@@ -92,12 +95,12 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return self.request.user
 
+
 class PasswordChangeView(PasswordChangeView):
     model = get_user_model()
     form_class = UserPasswordChangeForm
     success_url = reverse_lazy('users:password_change_done')
     template_name = 'users/password_change_form.html'
-
 
 
 def logout_user(request):
@@ -118,8 +121,7 @@ def verify_email(request, uidb64, token):
         return HttpResponseServerError('<h1>Invalid activation link</h1>')
 
 
-
-
+@cache_page(60 * 2)
 def all_posts(request, username):
     user = User.objects.get(username=username)
     posts = Paste.objects.filter(user=user)
@@ -127,13 +129,19 @@ def all_posts(request, username):
     return render(request, 'users/post_history.html',
                   context={'title': 'Pastebin', 'posts': posts, 'username': username})
 
+
+@cache_page(60 * 2)
 def post_details(request, hash):
     post = Paste.objects.get(hash_value=hash)
     posts = Paste.objects.filter(user=request.user.id)
 
-    get_object_response = s3.get_object(Bucket='pastebin-app', Key=post.s3_link)
-
-    post.content = get_object_response['Body'].read().decode('utf-8')
+    s3_object = cache.get(post.s3_link)
+    if s3_object:
+        post.content = s3_object
+    else:
+        get_object_response = s3.get_object(Bucket='pastebin-app', Key=post.s3_link)
+        post.content = get_object_response['Body'].read().decode('utf-8')
+        cache.set(post.s3_link, post.content, 60 * 15)
 
     return render(request, 'users/post_details.html',
                   context={'title': 'Pastebin',

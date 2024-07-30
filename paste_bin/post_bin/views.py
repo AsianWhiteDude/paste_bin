@@ -1,7 +1,7 @@
 import os
 import uuid
 import logging
-
+import requests
 
 from datetime import timedelta, datetime
 
@@ -29,6 +29,8 @@ s3 = session.client(
     aws_access_key_id=str(os.getenv('YANDEX_S3_ID_KEY')),
     aws_secret_access_key=str(os.getenv('YANDEX_S3_SECRET_KEY')),
 )
+
+flask_app_url = 'http://flask:5000/get_hash_key'
 
 def generate_random_string():
     random_string = str(uuid.uuid4())
@@ -70,7 +72,10 @@ class Index(LoginRequiredMixin, CreateView):
             '6months': timedelta(days=180),
         }
 
-        paste.hash_value = uuid.uuid4()
+        response = requests.get(flask_app_url)
+        hash_key = response.json().get('hash_key')
+        paste.hash_value = hash_key
+
         paste.time_expires = datetime.now() + expiration_delta[time_choice]
         paste.content = paste.content[:100]
         paste.save()

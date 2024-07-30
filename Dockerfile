@@ -3,9 +3,9 @@ FROM python:3.12-slim
 
 RUN pip install --upgrade pip
 
-WORKDIR /app
-COPY paste_bin /app/
-COPY requirements.txt /app/
+WORKDIR /django_app
+COPY paste_bin /django_app/
+COPY requirements.txt /django_app/
 
 RUN pip install -r requirements.txt
 

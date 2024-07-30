@@ -47,6 +47,41 @@ services:
       retries: 5
       start_period: 10s
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - pastebin
+
+  flask:
+    build:
+      context: flask_app
+    container_name: flask
+    environment:
+      FLASK_APP: run
+      FLASK_DEBUG: 1
+    command: flask run -h 0.0.0.0
+    volumes:
+      - ./flask_app:/app
+    ports:
+      - "5000:5000"
+    networks:
+      - pastebin
+
+  celery:
+    build:
+      context: flask_app
+    environment:
+      FLASK_APP: run
+    command: celery -A tasks.celery worker --loglevel=info
+    volumes:
+      - ./flask_app:/app
+    depends_on:
+      - redis
+    networks:
+      - pastebin
 
 volumes:
   static_volume:
