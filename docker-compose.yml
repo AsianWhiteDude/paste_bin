@@ -83,6 +83,34 @@ services:
     networks:
       - pastebin
 
+  post_cleaner:
+    build:
+      context: post_cleaner
+    command: celery -A cleaner.celery worker --loglevel=info
+    env_file:
+      - post_cleaner/.env
+    volumes:
+      - ./post_cleaner:/cleaner
+    networks:
+      - pastebin
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  celery_beat:
+    build:
+      context: post_cleaner
+    command: celery -A cleaner.celery beat --loglevel=info
+    env_file:
+      - post_cleaner/.env
+    volumes:
+      - ./post_cleaner:/cleaner
+    networks:
+      - pastebin
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   static_volume:
 
