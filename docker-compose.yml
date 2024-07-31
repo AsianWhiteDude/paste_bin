@@ -24,7 +24,8 @@ services:
       - ./docker/nginx/proxy_params:/etc/nginx/proxy_params
       - static_volume:/static
     ports:
-      - "8080:80"
+      - "80:80"
+      - "443:443"
     networks:
       - pastebin
     depends_on:
@@ -112,6 +113,14 @@ services:
       postgres:
         condition: service_healthy
     restart: on-failure
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email kimisharik@gmail.com -d binepaste.ru --agree-tos
 
 volumes:
   static_volume:
