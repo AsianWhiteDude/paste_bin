@@ -121,7 +121,6 @@ def verify_email(request, uidb64, token):
         return HttpResponseServerError('<h1>Invalid activation link</h1>')
 
 
-@cache_page(60 * 2)
 def all_posts(request, username):
     user = User.objects.get(username=username)
     posts = Paste.objects.filter(user=user)
@@ -130,7 +129,6 @@ def all_posts(request, username):
                   context={'title': 'Pastebin', 'posts': posts, 'username': username})
 
 
-@cache_page(60 * 2)
 def post_details(request, hash):
     post = Paste.objects.get(hash_value=hash)
     posts = Paste.objects.filter(user=request.user.id)

@@ -24,7 +24,7 @@ services:
       - ./docker/nginx/proxy_params:/etc/nginx/proxy_params
       - static_volume:/static
     ports:
-      - "80:80"
+      - "8080:80"
     networks:
       - pastebin
     depends_on:
@@ -96,6 +96,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    restart: on-failure
 
   celery_beat:
     build:
@@ -110,6 +111,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    restart: on-failure
 
 volumes:
   static_volume:
