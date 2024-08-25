@@ -28,6 +28,7 @@ def create_hash_keys():
             else:
                 break
         redis_client.rpush('valid_hashes', string)
+        redis_client.set(string, '1')
 
     redis_client.close()
 
