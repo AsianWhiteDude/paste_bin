@@ -6,6 +6,6 @@ Developed a web application called "Pastebin," which allows users to save blocks
 - Wrote a service for automatic record cleanup.
 - Set up Redis as a message broker for Celery and as a cache for frequently accessed data.
 - Created a Dockerfile and Docker Compose configuration, and configured Nginx along with Gunicorn.
-- Technologies used include Django, PostgreSQL, Docker, Celery, Redis, Nginx, and Flask.
+- Technologies used include Django, PostgreSQL, Docker, Celery, Redis, Nginx, RabbitMQ, and Flask.
 
 You can find the architecture of the application here: [Architecture Diagram](https://miro.com/app/board/uXjVKuXjHlw=/).
