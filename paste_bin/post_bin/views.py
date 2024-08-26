@@ -1,14 +1,15 @@
 import os
 import uuid
-import logging
 import requests
+
+from typing import TYPE_CHECKING
+import logging
 
 from datetime import timedelta, datetime
 
 import boto3
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView, CreateView
 from post_bin.forms import PastePost
@@ -31,6 +32,63 @@ s3 = session.client(
 )
 
 flask_app_url = 'http://flask:5000/get_hash_key'
+
+
+
+
+from .rmq_config import (
+    get_connection,
+    configure_logging,
+    MQ_ROUTING_KEY,
+)
+
+
+if TYPE_CHECKING:
+    from pika.adapters.blocking_connection import BlockingChannel
+    from pika.spec import Basic, BasicProperties
+
+
+
+def process_new_message(
+        ch: "BlockingChannel",
+        method: "Basic.Deliver",
+        properties: "BasicProperties",
+        body,
+):
+
+    logger.info("Finished processing message %r, sending ack!", body)
+
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+
+
+
+def consume_one_message(channel: "BlockingChannel") -> None:
+    method_frame, header_frame, body = channel.basic_get(queue=MQ_ROUTING_KEY, auto_ack=False)
+
+    if method_frame:
+        process_new_message(channel, method_frame, header_frame, body)
+        return body
+    else:
+        logger.warning("No message returned.")
+
+
+def get_hash():
+
+    response = requests.get(flask_app_url)
+
+    configure_logging(level=logging.WARNING)
+    with get_connection() as connection:
+        logger.info("Created connection: %s", connection)
+        with connection.channel() as channel:
+            logger.info("Created channel: %s", channel)
+            hash_key = consume_one_message(channel=channel)
+
+    hash_key = hash_key.decode('utf-8')
+
+    return hash_key
+
+
+
 
 def generate_random_string():
     random_string = str(uuid.uuid4())
@@ -72,9 +130,7 @@ class Index(LoginRequiredMixin, CreateView):
             '6months': timedelta(days=180),
         }
 
-        response = requests.get(flask_app_url)
-        hash_key = response.json().get('hash_key')
-        paste.hash_value = hash_key
+        paste.hash_value = get_hash()
 
         paste.time_expires = datetime.now() + expiration_delta[time_choice]
         paste.content = paste.content[:100]

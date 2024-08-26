@@ -82,6 +82,7 @@ services:
       - redis
     networks:
       - pastebin
+    restart: on-failure
 
   post_cleaner:
     build:
