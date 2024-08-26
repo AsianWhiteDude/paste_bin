@@ -24,9 +24,11 @@ services:
       - ./docker/nginx/proxy_params:/etc/nginx/proxy_params
       - static_volume:/static
     ports:
-      - "8080:80"
+      - "80:80"
+      - "443:443"
     networks:
       - pastebin
+    restart: on-failure
     depends_on:
       - django
 
