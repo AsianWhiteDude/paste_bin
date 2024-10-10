@@ -37,6 +37,9 @@ docker compose down
 ```
 Delete all images and volumes
 
+```
+docker compose up -d
+```
 
 ```
 docker compose up -d
